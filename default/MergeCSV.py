@@ -71,7 +71,7 @@ with Workbook(const.PATH + f'{todayString}-Summary.xlsx') as workbook:
     numColumns = len(monthlySummaries) * 2
     
     for col in range(numColumns):
-        for row in range(numRows):
+        for i in range(numRows):
             index = math.floor(col / 2)
             letter = alphabetList[col % 2]
-            annualWorksheet.write_formula(row, col, f'=\'{const.PATH}[{monthlySummaries[index]}]Summary\'!${letter}${row+1}')
+            annualWorksheet.write_formula(i, col, f'=\'[{monthlySummaries[index]}]Summary\'!${letter}${i+1}')
