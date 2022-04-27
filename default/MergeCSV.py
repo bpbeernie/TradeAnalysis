@@ -2,7 +2,6 @@ import os
 import glob
 import csv
 from xlsxwriter.workbook import Workbook
-from datetime import date
 from default import Constants as const
 
 def convertIndexToXLRow(index):
@@ -11,10 +10,9 @@ def convertIndexToXLRow(index):
 def convertIndexToXLCol(index):
     return index + 1
 
-#today = date.today()
-#todayString = today.strftime("%Y%m%d")
 
 folders = os.listdir(const.PATH)
+folders.remove("Archive")
 
 for folder in folders:
         
@@ -38,7 +36,7 @@ for folder in folders:
                 if r != 0:
                     worksheet.write_formula(r, 3, f'=(B{convertIndexToXLRow(r)} -C{convertIndexToXLRow(r)})*{const.RISK}')
                     worksheet.write_formula(r, 4, f'=SUM(D2:D{convertIndexToXLRow(r)})')
-        summaryWorksheet.write(summaryRow, 0, stock)
+        summaryWorksheet.write_formula(summaryRow, 0, f'=HYPERLINK("#{stock}!H5", "{stock}")')
         summaryWorksheet.write_formula(summaryRow, 1, f'={stock}!H5')
         summaryRow+=1
         worksheet.write(0, 0, "Date")
