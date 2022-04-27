@@ -2,7 +2,10 @@ import os
 import glob
 import csv
 from xlsxwriter.workbook import Workbook
+from datetime import date
 from default import Constants as const
+import string
+import math
 
 def convertIndexToXLRow(index):
     return index + 1
@@ -10,19 +13,23 @@ def convertIndexToXLRow(index):
 def convertIndexToXLCol(index):
     return index + 1
 
+monthlySummaries = []
+stockList = []
 
 folders = os.listdir(const.PATH)
 folders.remove("Archive")
 
 for folder in folders:
-        
-    workbook = Workbook(const.PATH + f'{folder}.xlsx')
+    filename = f'{folder}.xlsx'
+    monthlySummaries.append(filename)
+    workbook = Workbook(const.PATH + filename)
     summaryWorksheet = workbook.add_worksheet("Summary")
     summaryWorksheet.write(0, 0, "Stock")
     summaryWorksheet.write(0, 1, "Total")
     summaryRow = 1
     for csvfile in glob.glob(const.PATH + f'{folder}/*.csv'):
         stock = os.path.basename(csvfile).removesuffix('.csv')
+        stockList.append(stock)
         worksheet = workbook.add_worksheet(name=stock)
         with open(csvfile, 'rt', encoding='utf8') as f:
             reader = csv.reader(f)
@@ -50,5 +57,21 @@ for folder in folders:
         worksheet.write_formula(2, 7, "=SUM(C2:C1000)")
         worksheet.write_formula(4, 7, "=SUM(D2:D1000)")
         
-    
     workbook.close()
+    
+today = date.today()
+todayString = today.strftime("%Y%m%d")
+
+numRows = len(set(stockList)) + 1
+alphabetList = list(string.ascii_uppercase)
+
+with Workbook(const.PATH + f'{todayString}-Summary.xlsx') as workbook:
+    annualWorksheet = workbook.add_worksheet("AnnualSummary")
+    
+    numColumns = len(monthlySummaries) * 2
+    
+    for col in range(numColumns):
+        for row in range(numRows):
+            index = math.floor(col / 2)
+            letter = alphabetList[col % 2]
+            annualWorksheet.write_formula(row, col, f'=\'{const.PATH}[{monthlySummaries[index]}]Summary\'!${letter}${row+1}')
