@@ -65,13 +65,26 @@ todayString = today.strftime("%Y%m%d")
 numRows = len(set(stockList)) + 1
 alphabetList = list(string.ascii_uppercase)
 
+
+
 with Workbook(const.PATH + f'{todayString}-Summary.xlsx') as workbook:
     annualWorksheet = workbook.add_worksheet("AnnualSummary")
+    numColumns = len(monthlySummaries) * 3
     
-    numColumns = len(monthlySummaries) * 2
-    
+    for col in range(0, numColumns, 3):
+        index = math.floor(col / 3)
+        annualWorksheet.write(0, col, monthlySummaries[index])
+
     for col in range(numColumns):
+        if (col + 1) % 3 == 0:
+            continue
+        
         for i in range(numRows):
-            index = math.floor(col / 2)
-            letter = alphabetList[col % 2]
-            annualWorksheet.write_formula(i, col, f'=\'[{monthlySummaries[index]}]Summary\'!${letter}${i+1}')
+            index = math.floor(col / 3)
+            letter = alphabetList[col % 3]
+            annualWorksheet.write_formula(i+1, col, f'=\'[{monthlySummaries[index]}]Summary\'!${letter}${i+1}')
+            
+    #for col in range(0, numColumns, 3):
+    #    annualWorksheet.add_table(1, col, numRows, col+1, {'header_row': True, 'style': 'Table Style Light 11', 'columns': [{'header': "Stock"}, {'header': "Monthly Total"}]})
+
+    
